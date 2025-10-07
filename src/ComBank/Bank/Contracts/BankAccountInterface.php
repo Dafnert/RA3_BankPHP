@@ -18,4 +18,5 @@ interface BankAccountInterface
     const STATUS_CLOSED = 'CLOSED';
 
    
+   
 }

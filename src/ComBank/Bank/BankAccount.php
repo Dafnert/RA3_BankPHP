@@ -1,4 +1,6 @@
-<?php namespace ComBank\Bank;
+<?php
+
+namespace ComBank\Bank;
 
 /**
  * Created by VS Code.
@@ -20,4 +22,13 @@ use ComBank\Transactions\Contracts\BankTransactionInterface;
 
 class BankAccount
 {
+    private $balance = 400.0;
+    function __construct($balance)
+    {
+        $this->balance = $balance;
     }
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+}
