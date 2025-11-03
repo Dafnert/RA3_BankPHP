@@ -9,6 +9,8 @@
 
 interface OverdraftInterface
 {
-
-   
+public function isGrantOverDraftFunds(float $newAmount) : bool;
+public function getOverDraftFundsAmount():float; 
+    
 }
+   

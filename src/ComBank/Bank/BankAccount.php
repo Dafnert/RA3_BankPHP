@@ -20,15 +20,69 @@ use ComBank\OverdraftStrategy\Contracts\OverdraftInterface;
 use ComBank\Support\Traits\AmountValidationTrait;
 use ComBank\Transactions\Contracts\BankTransactionInterface;
 
-class BankAccount
+class BankAccount implements BankAccountInterface
 {
-    private $balance = 400.0;
-    function __construct($balance)
+    use AmountValidationTrait;
+    private $balance;
+    private $status;
+
+    private $overdraft;
+
+    function __construct(float $newBalance)
+    {
+        $this->validateAmount($newBalance);
+        $this->setBalance($newBalance);
+        $this->status = BankAccountInterface::STATUS_OPEN;
+        $this->overdraft = new NoOverdraft();
+    }
+    public function getBalance(): float
+    {
+        return $this->balance;
+    }
+    public function setBalance($balance): void
     {
         $this->balance = $balance;
     }
-    public function getBalance()
+    public function isOpen(): bool
     {
-        return $this->balance;
+        return $this->status === BankAccountInterface::STATUS_OPEN;
+    }
+    public function closeAccount(): void
+    {
+        $this->status = BankAccountInterface::STATUS_CLOSED;
+    }
+    public function reopenAccount(): void
+    {
+        if ($this->isOpen()) {
+            throw new BankAccountException("Account is already open");
+        }
+        $this->status = BankAccountInterface::STATUS_OPEN;
+    }
+    public function transaction(BankTransactionInterface $bankTransactionInterface): void
+    {
+        if (!$this->isOpen()) {
+            throw new BankAccountException("Account is closed");
+        }
+        try {
+            $newBalance = $bankTransactionInterface->applyTransaction($this);
+            $this->setBalance($newBalance);
+        } catch (InvalidOverdraftFundsException $e) {
+            throw new FailedTransactionException($e->getMessage());
+        }
+    }
+    public function isGrantOverDraftFunds(float $amount): bool
+    {
+        $newBalance = $this->balance + $amount;
+        $availableFunds = $newBalance + $this->overdraft->getOverdraftFundsAmount();
+        return $availableFunds >= 0;
+    }
+
+    public function getOverDraftFundsAmount(): float
+    {
+        return $this->overdraft->getOverdraftFundsAmount();
+    }
+    public function applyOverdraft(OverdraftInterface $overdraft): void
+    {
+        $this->overdraft = $overdraft;
     }
 }

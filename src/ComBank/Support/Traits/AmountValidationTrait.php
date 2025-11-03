@@ -9,6 +9,7 @@
 
 use ComBank\Exceptions\InvalidArgsException;
 use ComBank\Exceptions\ZeroAmountException;
+use PharIo\Manifest\NoEmailAddressException;
 
 trait AmountValidationTrait
 {
@@ -19,6 +20,11 @@ trait AmountValidationTrait
      */
     public function validateAmount(float $amount):void
     {
+     if($amount < 0){
+            echo "Error transaction: Insufficient balance to complete the withdrawal";
+     }
+     
         
-    }
+        
+     }
 }
