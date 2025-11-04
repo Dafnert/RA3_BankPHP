@@ -54,7 +54,7 @@ class BankAccount implements BankAccountInterface
     public function reopenAccount(): void
     {
         if ($this->isOpen()) {
-            throw new BankAccountException("Account is already open");
+            throw new BankAccountException("My account is now reopened");
         }
         $this->status = BankAccountInterface::STATUS_OPEN;
     }
